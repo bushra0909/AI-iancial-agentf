@@ -1,0 +1,407 @@
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, AlertTriangle, Brain, Calculator, Target, Clock } from 'lucide-react';
+
+const FinancialAIAgent = () => {
+  const [selectedTab, setSelectedTab] = useState('portfolio');
+  const [portfolioData, setPortfolioData] = useState({
+    totalValue: 127500,
+    dailyChange: 2.35,
+    positions: [
+      { symbol: 'AAPL', shares: 50, price: 185.20, change: 1.2, value: 9260 },
+      { symbol: 'GOOGL', shares: 25, price: 142.80, change: -0.8, value: 3570 },
+      { symbol: 'MSFT', shares: 40, price: 378.90, change: 2.1, value: 15156 },
+      { symbol: 'TSLA', shares: 30, price: 248.50, change: -1.5, value: 7455 },
+      { symbol: 'NVDA', shares: 35, price: 875.30, change: 3.2, value: 30635 }
+    ]
+  });
+
+  const [aiInsights, setAiInsights] = useState([
+    {
+      type: 'recommendation',
+      title: 'Portfolio Rebalancing Alert',
+      message: 'Tech allocation at 78% - consider diversifying into healthcare or energy sectors',
+      confidence: 85,
+      action: 'Rebalance'
+    },
+    {
+      type: 'risk',
+      title: 'Volatility Warning',
+      message: 'TSLA showing high volatility (σ=0.45). Consider reducing position size',
+      confidence: 92,
+      action: 'Reduce'
+    },
+    {
+      type: 'opportunity',
+      title: 'Market Opportunity',
+      message: 'Defensive stocks undervalued. JPM trading 15% below fair value',
+      confidence: 78,
+      action: 'Consider'
+    }
+  ]);
+
+  const [riskMetrics, setRiskMetrics] = useState({
+    varDaily: 2850,
+    sharpeRatio: 1.34,
+    beta: 1.12,
+    maxDrawdown: 8.5,
+    correlationSPY: 0.87
+  });
+
+  const [marketAnalysis, setMarketAnalysis] = useState({
+    sentiment: 'Bullish',
+    fearGreedIndex: 72,
+    volatilityIndex: 18.5,
+    technicalSignals: {
+      sma20: 'Bullish',
+      rsi: 'Neutral',
+      macd: 'Bullish'
+    }
+  });
+
+  const [predictions, setPredictions] = useState([
+    { timeframe: '1 Week', probability: 68, direction: 'Up', range: '2.3% - 4.1%' },
+    { timeframe: '1 Month', probability: 72, direction: 'Up', range: '5.2% - 8.7%' },
+    { timeframe: '3 Months', probability: 61, direction: 'Up', range: '8.1% - 15.3%' }
+  ]);
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatPercent = (value) => {
+    return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`;
+  };
+
+  const getConfidenceColor = (confidence) => {
+    if (confidence >= 80) return 'text-green-600';
+    if (confidence >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getChangeColor = (change) => {
+    return change > 0 ? 'text-green-600' : 'text-red-600';
+  };
+
+  const getChangeIcon = (change) => {
+    return change > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />;
+  };
+
+  const tabs = [
+    { id: 'portfolio', label: 'Portfolio', icon: PieChart },
+    { id: 'insights', label: 'AI Insights', icon: Brain },
+    { id: 'risk', label: 'Risk Analysis', icon: AlertTriangle },
+    { id: 'predictions', label: 'Predictions', icon: Target }
+  ];
+
+  const PortfolioView = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-800">Total Portfolio Value</h3>
+            <DollarSign className="w-6 h-6 text-blue-600" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{formatCurrency(portfolioData.totalValue)}</p>
+          <div className={`flex items-center mt-2 ${getChangeColor(portfolioData.dailyChange)}`}>
+            {getChangeIcon(portfolioData.dailyChange)}
+            <span className="ml-1 font-medium">{formatPercent(portfolioData.dailyChange)}</span>
+            <span className="text-gray-500 ml-2">Today</span>
+          </div>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-800">Market Sentiment</h3>
+            <Brain className="w-6 h-6 text-purple-600" />
+          </div>
+          <p className="text-2xl font-bold text-green-600 mt-2">{marketAnalysis.sentiment}</p>
+          <p className="text-sm text-gray-600 mt-1">Fear & Greed: {marketAnalysis.fearGreedIndex}/100</p>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-800">AI Confidence</h3>
+            <Calculator className="w-6 h-6 text-orange-600" />
+          </div>
+          <p className="text-2xl font-bold text-blue-600 mt-2">87%</p>
+          <p className="text-sm text-gray-600 mt-1">High confidence in analysis</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800">Portfolio Holdings</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shares</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {portfolioData.positions.map((position, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{position.symbol}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{position.shares}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${position.price}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`flex items-center ${getChangeColor(position.change)}`}>
+                      {getChangeIcon(position.change)}
+                      <span className="ml-1 text-sm font-medium">{formatPercent(position.change)}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {formatCurrency(position.value)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const AIInsightsView = () => (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+        <div className="flex items-center">
+          <Brain className="w-8 h-8 mr-3" />
+          <div>
+            <h2 className="text-2xl font-bold">AI Financial Advisor</h2>
+            <p className="text-blue-100 mt-1">Real-time market analysis and personalized recommendations</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {aiInsights.map((insight, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-800">{insight.title}</h3>
+              <span className={`text-sm font-medium ${getConfidenceColor(insight.confidence)}`}>
+                {insight.confidence}% confidence
+              </span>
+            </div>
+            <p className="text-gray-600 mb-4">{insight.message}</p>
+            <div className="flex justify-between items-center">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                insight.type === 'recommendation' ? 'bg-blue-100 text-blue-800' :
+                insight.type === 'risk' ? 'bg-red-100 text-red-800' :
+                'bg-green-100 text-green-800'
+              }`}>
+                {insight.type}
+              </span>
+              <button className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors">
+                {insight.action}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Technical Analysis Signals</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {Object.entries(marketAnalysis.technicalSignals).map(([indicator, signal]) => (
+            <div key={indicator} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 uppercase">{indicator}</span>
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                signal === 'Bullish' ? 'bg-green-100 text-green-800' :
+                signal === 'Bearish' ? 'bg-red-100 text-red-800' :
+                'bg-yellow-100 text-yellow-800'
+              }`}>
+                {signal}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const RiskAnalysisView = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Metrics</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-500 mb-2">Value at Risk (Daily)</h4>
+            <p className="text-2xl font-bold text-red-600">{formatCurrency(riskMetrics.varDaily)}</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-500 mb-2">Sharpe Ratio</h4>
+            <p className="text-2xl font-bold text-green-600">{riskMetrics.sharpeRatio}</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-500 mb-2">Portfolio Beta</h4>
+            <p className="text-2xl font-bold text-blue-600">{riskMetrics.beta}</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-500 mb-2">Max Drawdown</h4>
+            <p className="text-2xl font-bold text-red-600">{formatPercent(riskMetrics.maxDrawdown)}</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-500 mb-2">Correlation (SPY)</h4>
+            <p className="text-2xl font-bold text-purple-600">{riskMetrics.correlationSPY}</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-500 mb-2">Volatility Index</h4>
+            <p className="text-2xl font-bold text-orange-600">{marketAnalysis.volatilityIndex}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Assessment</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="flex items-center">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
+              <div>
+                <h4 className="font-medium text-yellow-800">Moderate Risk Level</h4>
+                <p className="text-sm text-yellow-700">Portfolio shows balanced risk-return profile</p>
+              </div>
+            </div>
+            <span className="text-yellow-600 font-semibold">65/100</span>
+          </div>
+          
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h4 className="font-medium text-blue-800 mb-2">AI Risk Recommendations</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Consider adding bonds to reduce overall portfolio volatility</li>
+              <li>• NVDA position represents 24% of portfolio - consider reducing concentration</li>
+              <li>• Diversify across sectors to minimize sector-specific risks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const PredictionsView = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">AI Market Predictions</h3>
+        <div className="space-y-4">
+          {predictions.map((prediction, index) => (
+            <div key={index} className="p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-800">{prediction.timeframe}</h4>
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 text-gray-500 mr-1" />
+                  <span className="text-sm text-gray-600">{prediction.probability}% confidence</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  {prediction.direction === 'Up' ? (
+                    <TrendingUp className="w-5 h-5 text-green-600 mr-2" />
+                  ) : (
+                    <TrendingDown className="w-5 h-5 text-red-600 mr-2" />
+                  )}
+                  <span className={`font-medium ${prediction.direction === 'Up' ? 'text-green-600' : 'text-red-600'}`}>
+                    {prediction.direction}ward Movement
+                  </span>
+                </div>
+                <span className="text-sm text-gray-600">Range: {prediction.range}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-6 text-white">
+        <div className="flex items-center mb-4">
+          <Target className="w-6 h-6 mr-3" />
+          <h3 className="text-xl font-bold">AI Trading Signals</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white bg-opacity-20 rounded-lg p-4">
+            <h4 className="font-medium mb-2">Next Week Outlook</h4>
+            <p className="text-sm text-purple-100">Strong bullish momentum expected. Consider increasing equity exposure.</p>
+          </div>
+          <div className="bg-white bg-opacity-20 rounded-lg p-4">
+            <h4 className="font-medium mb-2">Monthly Strategy</h4>
+            <p className="text-sm text-purple-100">Gradual position building recommended. Watch for volatility spikes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTabContent = () => {
+    switch (selectedTab) {
+      case 'portfolio':
+        return <PortfolioView />;
+      case 'insights':
+        return <AIInsightsView />;
+      case 'risk':
+        return <RiskAnalysisView />;
+      case 'predictions':
+        return <PredictionsView />;
+      default:
+        return <PortfolioView />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <div className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Brain className="w-8 h-8 text-blue-600 mr-3" />
+              <h1 className="text-2xl font-bold text-gray-900">Financial AI Agent</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center text-sm text-gray-500">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                Live Market Data
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <nav className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedTab(tab.id)}
+                  className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    selectedTab === tab.id
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {renderTabContent()}
+      </div>
+    </div>
+  );
+};
+
+export default FinancialAIAgent;
